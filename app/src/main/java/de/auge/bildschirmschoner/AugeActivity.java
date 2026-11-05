@@ -3,6 +3,9 @@ package de.auge.bildschirmschoner;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.widget.Toast;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
@@ -14,16 +17,29 @@ public class AugeActivity extends Activity {
 
     private WebView web;
 
-    /** In der Unterklasse AugeActivityDunkel überschrieben. */
-    protected boolean isDark() { return false; }
+    private boolean dark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        web = AugeWeb.create(this, isDark());
+        dark = AugeWeb.isDark(this);
+        web = AugeWeb.create(this, dark);
         setContentView(web);
         hideSystemBars();
+
+        // Doppeltippen: hell <-> dunkel (einfaches Tippen bewusst ohne Wirkung, gegen versehentliches Umschalten)
+        final GestureDetector gd = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override public boolean onDoubleTap(MotionEvent e) {
+                dark = !dark;
+                AugeWeb.setDark(AugeActivity.this, dark);
+                AugeWeb.show(web, dark);
+                Toast.makeText(AugeActivity.this, dark ? "Dunkel" : "Hell", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        web.setOnTouchListener((v, ev) -> { gd.onTouchEvent(ev); return false; });
+        Toast.makeText(this, "Doppeltippen: hell \u2194 dunkel", Toast.LENGTH_LONG).show();
     }
 
     @Override

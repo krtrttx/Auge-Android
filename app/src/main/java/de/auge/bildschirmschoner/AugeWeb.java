@@ -30,6 +30,23 @@ final class AugeWeb {
 
     private AugeWeb() {}
 
+    private static final String PREFS = "auge", KEY_DARK = "dunkel";
+
+    /** Gemerkte Wahl hell/dunkel (gilt für App und Bildschirmschoner). */
+    static boolean isDark(Context ctx) {
+        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_DARK, false);
+    }
+
+    static void setDark(Context ctx, boolean dark) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_DARK, dark).apply();
+    }
+
+    /** Lädt die Animation mit dem gewünschten Hintergrund neu. */
+    static void show(WebView web, boolean dark) {
+        web.setBackgroundColor(dark ? Color.BLACK : Color.WHITE);
+        web.loadUrl(dark ? URL + "&dark" : URL);   // &dark: schwarzer Hintergrund, helle Wimpern
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     static WebView create(Context ctx, boolean dark) {
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
@@ -37,7 +54,6 @@ final class AugeWeb {
                 .build();
 
         WebView web = new WebView(ctx);
-        web.setBackgroundColor(dark ? Color.BLACK : Color.WHITE);   // kein Aufblitzen beim Start
         web.setVerticalScrollBarEnabled(false);
         web.setHorizontalScrollBarEnabled(false);
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -62,7 +78,7 @@ final class AugeWeb {
             }
         });
 
-        web.loadUrl(dark ? URL + "&dark" : URL);   // &dark: schwarzer Hintergrund, helle Wimpern
+        show(web, dark);
         return web;
     }
 

@@ -1,6 +1,6 @@
 # Auge – Android-Bildschirmschoner
 
-Enthält zwei Betriebsarten, jeweils hell (weißer Hintergrund) und dunkel (schwarzer Hintergrund, helle Wimpern):
+Enthält zwei Betriebsarten. In der App schaltet **Doppeltippen** zwischen hell (weißer Hintergrund) und dunkel (schwarzer Hintergrund, helle Wimpern) um; der Bildschirmschoner übernimmt die zuletzt gewählte Einstellung:
 1. **Bildschirmschoner** (Android „Daydream“ / `DreamService`)
 2. **Vollbild-App „Auge“** – läuft dauerhaft, Bildschirm bleibt an (für die Installation)
 
