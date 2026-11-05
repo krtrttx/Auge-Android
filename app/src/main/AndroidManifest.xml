@@ -25,10 +25,35 @@
             </intent-filter>
         </service>
 
+        <!-- 1b) Bildschirmschoner, dunkle Variante -->
+        <service
+            android:name=".AugeDreamDunkel"
+            android:exported="true"
+            android:label="@string/app_name_dark"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <!-- 2) Vollbild-App (für die Installation: läuft dauerhaft, Bildschirm bleibt an) -->
         <activity
             android:name=".AugeActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- 2b) Vollbild-App, dunkle Variante (eigenes Symbol im App-Menü) -->
+        <activity
+            android:name=".AugeActivityDunkel"
+            android:exported="true"
+            android:label="@string/app_name_dark"
+            android:icon="@drawable/ic_auge_dunkel"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

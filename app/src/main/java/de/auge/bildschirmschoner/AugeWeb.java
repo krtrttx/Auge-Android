@@ -31,13 +31,13 @@ final class AugeWeb {
     private AugeWeb() {}
 
     @SuppressLint("SetJavaScriptEnabled")
-    static WebView create(Context ctx) {
+    static WebView create(Context ctx, boolean dark) {
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(ctx))
                 .build();
 
         WebView web = new WebView(ctx);
-        web.setBackgroundColor(Color.WHITE);          // kein schwarzes Aufblitzen beim Start
+        web.setBackgroundColor(dark ? Color.BLACK : Color.WHITE);   // kein Aufblitzen beim Start
         web.setVerticalScrollBarEnabled(false);
         web.setHorizontalScrollBarEnabled(false);
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -62,7 +62,7 @@ final class AugeWeb {
             }
         });
 
-        web.loadUrl(URL);
+        web.loadUrl(dark ? URL + "&dark" : URL);   // &dark: schwarzer Hintergrund, helle Wimpern
         return web;
     }
 

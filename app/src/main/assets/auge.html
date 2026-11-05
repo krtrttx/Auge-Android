@@ -25,7 +25,7 @@ uniform float uW, uH, uFlip, uTilt;
 uniform float uLo, uPu, uSu, uPl, uSl, uMd, uIy;
 uniform float uOU, uOL, uVis, uTime, uPupil, uSeed, uRed, uFleck;
 uniform vec2  uGaze;
-uniform float uExpUp, uExpLo, uWr, uCrease, uLk, uUn, uLn, uDroop, uIrisPx, uCs, uDeep, uRm, uRl, uInner, uTight, uWet;
+uniform float uExpUp, uExpLo, uWr, uCrease, uLk, uUn, uLn, uDroop, uIrisPx, uCs, uDeep, uRm, uRl, uInner, uTight, uWet, uDark;
 uniform vec3  cInner, cMid, cOuter, cLimbal, cFiber, cFleck;
 
 const float RI  = 0.40;
@@ -62,7 +62,7 @@ float isph(vec3 ro, vec3 rd, vec3 c, float r){
 
 vec3 keyDir(){ return normalize(vec3(-0.45*uFlip, 0.5, 0.75)); }
 vec3 env(vec3 d, float rough){
-  vec3 col = vec3(0.50,0.50,0.51)*(0.75+0.25*d.y);
+  vec3 col = vec3(0.50,0.50,0.51)*mix(1.0, 0.08, uDark)*(0.75+0.25*d.y);
   vec3 L = keyDir();
   vec3 tx = normalize(cross(vec3(0,1,0), L)); vec3 ty = cross(L, tx);
   float z = dot(d,L);
@@ -389,7 +389,7 @@ void main(){
   vec2 q = p - uCenter; q.x *= uFlip;
   float c = cos(uTilt), s = sin(uTilt);
   vec2 l = vec2(c*q.x - s*q.y, s*q.x + c*q.y);
-  if(uVis <= 0.001 || length(l/vec2(uW*1.6, uH*2.6 + uW*0.3)) > 1.0){ gl_FragColor = vec4(1,1,1,1); return; }
+  if(uVis <= 0.001 || length(l/vec2(uW*1.6, uH*2.6 + uW*0.3)) > 1.0){ gl_FragColor = vec4(vec3(1.0 - uDark), 1.0); return; }
 
   float yU,yL,yU2,yL2;
   lids(l.x, yU, yL); lids(l.x+1.0, yU2, yL2);
@@ -402,7 +402,8 @@ void main(){
   float pool = facePool(l);
   float presence = pool*smoothstep(0.03, 0.08, pool);          // unterhalb unsichtbar -> nicht rechnen
   vec3 hdr = vec3(1.0);
-  if(presence > 0.0) hdr = skinShade(l, yU, yL, yU2, yL2, creaseU(l.x));
+  if(presence > 0.0) hdr = skinShade(l, yU, yL, yU2, yL2, creaseU(l.x))*mix(1.0, 0.3, uDark);
+  presence = mix(presence, presence*presence, uDark);
   if(mask > 0.0){
     vec2 ep = l/vec2(uW*0.95, uH*1.6 + uW*0.2);
     float eyePool = mix(0.72, 1.0, exp(-1.3*dot(ep, ep)));
@@ -412,7 +413,7 @@ void main(){
 
   vec3 col = aces(hdr*0.95);
   col = pow(col, vec3(1.0/2.2));
-  col = mix(vec3(1.0), col, presence*uVis);       // Gesicht strahlt ins Weiß über
+  col = mix(vec3(1.0 - uDark), col, presence*uVis);   // Gesicht geht ins Weiß bzw. Schwarz über
   float g = fract(sin(dot(gl_FragCoord.xy + fract(uTime)*91.0, vec2(12.9898,78.233)))*43758.5453);
   col += (g-0.5)*(2.0/255.0)*uVis;
   gl_FragColor = vec4(max(col, vec3(0.0)), 1.0);
@@ -428,6 +429,9 @@ const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t 
 const sr = (s, r) => Math.sqrt(s * s + 2 * r * s) / Math.sqrt(1 + 2 * r);
 const smoother = s => s * s * s * (s * (6 * s - 15) + 10);
 const Q = new URLSearchParams(location.search);
+const DARK = Q.has('dark');                      // ?dark: schwarzer Hintergrund, helle Wimpern
+if (DARK) { document.documentElement.style.background = document.body.style.background = '#000'; }
+const LASH = DARK ? '#efe6dc' : '#120d0a';
 const lin = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.pow(v / 255, 2.2)); };
 
 const PAL = [
@@ -498,7 +502,7 @@ const aLoc = gl.getAttribLocation(prog, 'a');
 gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
 const U_ = {};
 ['uRes','uDpr','uCenter','uW','uH','uFlip','uTilt','uLo','uPu','uSu','uPl','uSl','uMd','uIy','uOU','uOL','uVis','uTime',
- 'uPupil','uSeed','uRed','uExpUp','uExpLo','uWr','uCrease','uLk','uUn','uLn','uDroop','uIrisPx','uCs','uDeep','uRm','uRl','uInner','uTight','uWet','uFleck','uGaze','cInner','cMid','cOuter','cLimbal','cFiber','cFleck']
+ 'uPupil','uSeed','uRed','uExpUp','uExpLo','uWr','uCrease','uLk','uUn','uLn','uDroop','uIrisPx','uCs','uDeep','uRm','uRl','uInner','uTight','uWet','uDark','uFleck','uGaze','cInner','cMid','cOuter','cLimbal','cFiber','cFleck']
   .forEach(n => U_[n] = gl.getUniformLocation(prog, n));
 
 let VW, VH, W, H, offY, S, P, flip = 1, seed = 0, red = 1;
@@ -637,7 +641,7 @@ const BX = new Float32Array(16), BY = new Float32Array(16);
 const SEG = new Map(), DOT = new Map();          // Sammelpfade nach (Deckkraft, Strichstärke)
 const binPath = (m, key) => { let p = m.get(key); if (!p) { p = new Path2D(); m.set(key, p); } return p; };
 function flushLashes() {
-  ctx.strokeStyle = ctx.fillStyle = '#120d0a';
+  ctx.strokeStyle = ctx.fillStyle = LASH;
   for (const [key, p] of SEG) { ctx.globalAlpha = (key >> 6) / 32; ctx.lineWidth = (key & 63) / 20; ctx.stroke(p); }
   for (const [key, p] of DOT) { ctx.globalAlpha = key / 32; ctx.fill(p); }
   SEG.clear(); DOT.clear(); ctx.globalAlpha = 1;
@@ -785,7 +789,7 @@ function frame(now) {
   gl.uniform2f(U_.uCenter, VW / 2, cy);
   gl.uniform1f(U_.uW, W); gl.uniform1f(U_.uH, H); gl.uniform1f(U_.uFlip, flip); gl.uniform1f(U_.uTilt, S.tilt);
   gl.uniform1f(U_.uLo, S.lo); gl.uniform1f(U_.uPu, S.pu); gl.uniform1f(U_.uSu, S.su);
-  gl.uniform1f(U_.uPl, S.pl); gl.uniform1f(U_.uSl, S.sl); gl.uniform1f(U_.uMd, S.md); gl.uniform1f(U_.uLk, S.lk); gl.uniform1f(U_.uUn, S.un); gl.uniform1f(U_.uLn, S.ln); gl.uniform1f(U_.uDroop, drp); gl.uniform1f(U_.uInner, inn); gl.uniform1f(U_.uTight, tgt); gl.uniform1f(U_.uWet, E.wet * exA); gl.uniform1f(U_.uCs, S.cs); gl.uniform1f(U_.uRm, S.rm); gl.uniform1f(U_.uRl, S.rl); gl.uniform1f(U_.uDeep, S.dp); gl.uniform1f(U_.uIrisPx, .392 * W * gc.width / VW); gl.uniform1f(U_.uIy, S.iy);
+  gl.uniform1f(U_.uPl, S.pl); gl.uniform1f(U_.uSl, S.sl); gl.uniform1f(U_.uMd, S.md); gl.uniform1f(U_.uLk, S.lk); gl.uniform1f(U_.uUn, S.un); gl.uniform1f(U_.uLn, S.ln); gl.uniform1f(U_.uDroop, drp); gl.uniform1f(U_.uInner, inn); gl.uniform1f(U_.uTight, tgt); gl.uniform1f(U_.uWet, E.wet * exA); gl.uniform1f(U_.uDark, DARK ? 1 : 0); gl.uniform1f(U_.uCs, S.cs); gl.uniform1f(U_.uRm, S.rm); gl.uniform1f(U_.uRl, S.rl); gl.uniform1f(U_.uDeep, S.dp); gl.uniform1f(U_.uIrisPx, .392 * W * gc.width / VW); gl.uniform1f(U_.uIy, S.iy);
   gl.uniform1f(U_.uOU, oU); gl.uniform1f(U_.uOL, oL); gl.uniform1f(U_.uVis, vis); gl.uniform1f(U_.uTime, time);
   gl.uniform1f(U_.uPupil, pupil); gl.uniform1f(U_.uSeed, seed); gl.uniform1f(U_.uRed, red);
   gl.uniform1f(U_.uExpUp, eu); gl.uniform1f(U_.uExpLo, el); gl.uniform1f(U_.uWr, wrk * (.6 + 1.2 * el)); gl.uniform1f(U_.uCrease, S.cr);

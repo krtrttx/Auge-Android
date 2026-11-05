@@ -14,11 +14,14 @@ public class AugeActivity extends Activity {
 
     private WebView web;
 
+    /** In der Unterklasse AugeActivityDunkel überschrieben. */
+    protected boolean isDark() { return false; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        web = AugeWeb.create(this);
+        web = AugeWeb.create(this, isDark());
         setContentView(web);
         hideSystemBars();
     }

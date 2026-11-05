@@ -8,13 +8,16 @@ public class AugeDream extends DreamService {
 
     private WebView web;
 
+    /** In der Unterklasse AugeDreamDunkel überschrieben. */
+    protected boolean isDark() { return false; }
+
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
         setInteractive(false);       // Berührung/Taste beendet den Bildschirmschoner
         setFullscreen(true);         // Statusleiste ausblenden
         setScreenBright(true);
-        web = AugeWeb.create(this);
+        web = AugeWeb.create(this, isDark());
         setContentView(web);
     }
 
