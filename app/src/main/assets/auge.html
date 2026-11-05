@@ -514,11 +514,12 @@ const pick = (len, prev) => { let i; do { i = Math.random() * len | 0; } while (
 const bLine = t => H * S.md * (1 - t) / 2;
 
 function layout() {
-  W = Math.min(VW * 0.40, VH * 0.62 / (S.ah * (1 + S.lo) + .35));
+  const portrait = VH > VW;
+  W = Math.min(VW * (portrait ? .44 : .40), VH * 0.62 / (S.ah * (1 + S.lo) + .35));   // Hochformat: etwas größer
   H = S.ah * W;
   const mid = bLine(0) + H * (S.lo - 1) / 2;
   S.iy = mid / H;
-  offY = -mid + H * .08;
+  offY = -mid + (portrait ? 0 : H * .08);      // Querformat unverändert wie bisher
 }
 
 function mkLash(t, len, fan, curl, w, a, off, upper) {
@@ -780,7 +781,10 @@ function frame(now) {
 
   const oU = clamp(o * (1 - .13 * my) * (1 - bl), 0, 1.12);
   const oL = sstep(0, .75, o) * (1 + .06 * my);
-  const cy = VH / 2 + offY + Math.sin(time * .35) * 1.2;
+  // Höhe der Augenmitte (Anteil der Bildschirmhöhe von oben): Hochformat oberes Drittel (unter der Kamera),
+  // Querformat wie bisher mittig; ?y=0.3 setzt sie frei
+  const anchor = Q.has('y') ? clamp(+Q.get('y'), .15, .85) : (VH > VW ? .36 : .5);
+  const cy = VH * anchor + offY + Math.sin(time * .35) * 1.2;
   const oe = sstep(0, .8, o) * (1 - .1 * my) * (1 - bl);
   const sdt = dt / 4;                                   // stabile Integration in Teilschritten
   for (let i = 0; i < 4; i++) { stepLashes(lashesU, oe, sdt); stepLashes(lashesL, oL, sdt); }
