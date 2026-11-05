@@ -1,0 +1,34 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'de.auge.bildschirmschoner'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'de.auge.bildschirmschoner'
+        minSdk 24          // Android 7.0
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Für die Installation reicht die Debug-APK. Für eine signierte Release-APK
+            // in Android Studio: Build > Generate Signed App Bundle / APK.
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Liefert die HTML-Datei aus den App-Assets über eine sichere https-Adresse aus
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
