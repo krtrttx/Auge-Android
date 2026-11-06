@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Läuft auf Smartphones, Tablets und Android TV -->
+    <!-- Runs on phones, tablets and Android TV -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
@@ -13,7 +13,7 @@
         android:allowBackup="false"
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
 
-        <!-- 1) System-Bildschirmschoner -->
+        <!-- 1) System screensaver (Daydream) -->
         <service
             android:name=".AugeDream"
             android:exported="true"
@@ -25,7 +25,7 @@
             </intent-filter>
         </service>
 
-        <!-- 2) Vollbild-App (für die Installation: läuft dauerhaft, Bildschirm bleibt an) -->
+        <!-- 2) Fullscreen app (for installations: runs continuously, screen stays on) -->
         <activity
             android:name=".AugeActivity"
             android:exported="true"

@@ -1,9 +1,9 @@
-package de.auge.bildschirmschoner;
+package io.github.krtrttx.auge;
 
 import android.service.dreams.DreamService;
 import android.webkit.WebView;
 
-/** Android-Bildschirmschoner ("Daydream"). Eine Berührung beendet ihn wie üblich. */
+/** Android screensaver ("Daydream"). A touch ends it, as usual. */
 public class AugeDream extends DreamService {
 
     private WebView web;
@@ -11,10 +11,10 @@ public class AugeDream extends DreamService {
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-        setInteractive(false);       // Berührung/Taste beendet den Bildschirmschoner
-        setFullscreen(true);         // Statusleiste ausblenden
+        setInteractive(false);       // touch / key press ends the screensaver
+        setFullscreen(true);         // hide the status bar
         setScreenBright(true);
-        web = AugeWeb.create(this, AugeWeb.isDark(this));   // Wahl aus der App
+        web = AugeWeb.create(this, AugeWeb.isDark(this));   // uses the choice made in the app
         setContentView(web);
     }
 

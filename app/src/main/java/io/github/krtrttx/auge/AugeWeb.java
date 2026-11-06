@@ -1,4 +1,4 @@
-package de.auge.bildschirmschoner;
+package io.github.krtrttx.auge;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -12,27 +12,28 @@ import android.webkit.WebViewClient;
 
 import androidx.webkit.WebViewAssetLoader;
 
-/** Erzeugt die WebView, die auge.html aus den App-Assets anzeigt. */
+/** Creates the WebView that renders auge.html from the app's assets. */
 final class AugeWeb {
 
     /**
-     * URL-Parameter für auge.html. "kiosk" blendet den Vollbild-Hinweis aus.
-     * Weitere Möglichkeiten (mit & anhängen):
-     *   e=0..9   fester Ausdruck (0 neutral, 1 Mona Lisa, 2 Freude, 3 Trauer, 4 Angst,
-     *            5 Überraschung, 6 Ärger, 7 Misstrauen, 8 Müdigkeit, 9 Melancholie)
-     *   q=0.7    feste Renderauflösung (70 %) statt automatischer Anpassung
-     * Beispiel: "kiosk&e=1&q=0.8"
+     * URL parameters for auge.html. "kiosk" hides the fullscreen hint.
+     * Further options (append with &):
+     *   e=0..9   fixed expression (0 neutral, 1 Mona Lisa, 2 joy, 3 sadness, 4 fear,
+     *            5 surprise, 6 anger, 7 suspicion, 8 fatigue, 9 melancholy)
+     *   q=0.7    fixed render resolution (70 %) instead of automatic adaptation
+     *   y=0.3    vertical eye position (fraction of screen height)
+     * Example: "kiosk&e=1&q=0.8"
      */
     static final String PARAMS = "kiosk";
 
     private static final String URL =
             "https://appassets.androidplatform.net/assets/auge.html?" + PARAMS;
 
+    private static final String PREFS = "auge", KEY_DARK = "dark";
+
     private AugeWeb() {}
 
-    private static final String PREFS = "auge", KEY_DARK = "dunkel";
-
-    /** Gemerkte Wahl hell/dunkel (gilt für App und Bildschirmschoner). */
+    /** Remembered light/dark choice (shared by the app and the screensaver). */
     static boolean isDark(Context ctx) {
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_DARK, false);
     }
@@ -41,10 +42,10 @@ final class AugeWeb {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_DARK, dark).apply();
     }
 
-    /** Lädt die Animation mit dem gewünschten Hintergrund neu. */
+    /** (Re)loads the animation with the requested background. */
     static void show(WebView web, boolean dark) {
-        web.setBackgroundColor(dark ? Color.BLACK : Color.WHITE);
-        web.loadUrl(dark ? URL + "&dark" : URL);   // &dark: schwarzer Hintergrund, helle Wimpern
+        web.setBackgroundColor(dark ? Color.BLACK : Color.WHITE);   // avoids a flash while loading
+        web.loadUrl(dark ? URL + "&dark" : URL);                    // &dark: black background, light lashes
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -60,7 +61,7 @@ final class AugeWeb {
         web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         WebSettings s = web.getSettings();
-        s.setJavaScriptEnabled(true);                 // für die Animation erforderlich
+        s.setJavaScriptEnabled(true);                 // required for the animation
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
         s.setDomStorageEnabled(false);
@@ -74,7 +75,7 @@ final class AugeWeb {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return true;                          // keine Navigation nach außen
+                return true;                          // never navigate away
             }
         });
 

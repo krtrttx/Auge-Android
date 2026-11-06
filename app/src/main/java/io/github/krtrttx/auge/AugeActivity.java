@@ -1,22 +1,21 @@
-package de.auge.bildschirmschoner;
+package io.github.krtrttx.auge;
 
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.Toast;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.Toast;
 
-/** Dauerbetrieb im Vollbild, z. B. für die Installation. Der Bildschirm bleibt an. */
+/** Continuous fullscreen mode, e.g. for installations. Keeps the screen on. */
 public class AugeActivity extends Activity {
 
     private WebView web;
-
     private boolean dark;
 
     @Override
@@ -28,18 +27,18 @@ public class AugeActivity extends Activity {
         setContentView(web);
         hideSystemBars();
 
-        // Doppeltippen: hell <-> dunkel (einfaches Tippen bewusst ohne Wirkung, gegen versehentliches Umschalten)
+        // Double tap toggles light <-> dark (a single tap does nothing, to avoid accidental switching)
         final GestureDetector gd = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override public boolean onDoubleTap(MotionEvent e) {
                 dark = !dark;
                 AugeWeb.setDark(AugeActivity.this, dark);
                 AugeWeb.show(web, dark);
-                Toast.makeText(AugeActivity.this, dark ? "Dunkel" : "Hell", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AugeActivity.this, dark ? "Dark" : "Light", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
         web.setOnTouchListener((v, ev) -> { gd.onTouchEvent(ev); return false; });
-        Toast.makeText(this, "Doppeltippen: hell \u2194 dunkel", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Double-tap: light ↔ dark", Toast.LENGTH_LONG).show();
     }
 
     @Override
