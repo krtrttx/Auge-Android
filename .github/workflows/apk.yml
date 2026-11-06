@@ -1,11 +1,13 @@
 # Builds the APK on GitHub.
 #  - every push: APK as a build artifact (Actions tab > run > Artifacts > "auge-apk")
-#  - pushing a tag like v1.0.0: additionally publishes a GitHub Release with the APK attached
+#  - publishing a GitHub Release (or pushing a tag like v1.0.0): attaches the signed APK to that release
 name: Build APK
 on:
   push:
     branches: [main]
     tags: ['v*']
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -45,9 +47,9 @@ jobs:
           name: auge-apk
           path: Auge.apk
 
-      - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Attach APK to release
+        if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.release.tag_name || github.ref_name }}
           files: Auge.apk
-          generate_release_notes: true
